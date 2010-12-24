@@ -39,7 +39,7 @@ class GELFMessage {
     public function send()
     {
         // Check if all required parameters are set.
-        if (!$this->dataParamSet("short_message") || !$this->dataParamSet("host")) {
+        if (!$this->dataParamSet("gelf_short_message") || !$this->dataParamSet("gelf_host")) {
             throw new Exception('Missing required data parameter: "short_message" and "host" are required.');
         }
 
@@ -87,37 +87,37 @@ class GELFMessage {
 
     public function setShortMessage($message)
     {
-        $this->data["short_message"] = $message;
+        $this->data["gelf_short_message"] = $message;
     }
 
     public function setFullMessage($message)
     {
-        $this->data["full_message"] = $message;
+        $this->data["gelf_full_message"] = $message;
     }
 
     public function setHost($host)
     {
-        $this->data["host"] = $host;
+        $this->data["gelf_host"] = $host;
     }
 
     public function setLevel($level)
     {
-        $this->data["level"] = $level;
+        $this->data["gelf_level"] = $level;
     }
 
     public function setType($type)
     {
-        $this->data["type"] = $type;
+        $this->data["gelf_type"] = $type;
     }
 
     public function setFile($file)
     {
-        $this->data["file"] = $file;
+        $this->data["gelf_file"] = $file;
     }
 
     public function setLine($line)
     {
-        $this->data["line"] = $line;
+        $this->data["gelf_line"] = $line;
     }
 
     public function setAdditional($key, $value)
