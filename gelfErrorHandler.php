@@ -29,6 +29,8 @@ class gelfErrorHandler extends GELFMessage {
 		$stacktrace = $this->prettifyBackTrace($backtrace);
 		
 		$errlevel = $this->getSyslogLevel($errno);
+		
+		$this->setFacility(defined('APP_NAME') ? APP_NAME : 'PHP Application');
 		$this->setShortMessage($errShortMsg);
 		$this->setFullMessage($stacktrace);
 		$this->setHost(gethostname());

@@ -1,9 +1,12 @@
 <?php
 require('gelfErrorHandler.php');
 
-$gelf = new gelfErrorHandler('88.87.57.5', 12201);
+define('APP_NAME', 'Hello graylog');
+define('GRAYLOG2_HOST', 'localhost');
+define('GARYLOG2_PORT', 12201);
+
+
+$gelf = new gelfErrorHandler(GRAYLOG2_HOST, GRAYLOG2_PORT);
 set_error_handler(array($gelf, 'handler'));
 
-
-trigger_error("hehehehe");
-
+trigger_error("Something went completely wrong :(", E_USER_ERROR);
