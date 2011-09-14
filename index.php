@@ -3,7 +3,7 @@ require('gelfErrorHandler.php');
 
 define('APP_NAME', 'Hello graylog');
 define('GRAYLOG2_HOST', 'localhost');
-define('GARYLOG2_PORT', 12201);
+define('GRAYLOG2_PORT', 12201);
 
 
 $gelf = new gelfErrorHandler(GRAYLOG2_HOST, GRAYLOG2_PORT);
