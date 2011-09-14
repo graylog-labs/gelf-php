@@ -1,6 +1,9 @@
 <?php
 require_once('gelf.php');
 
+defined('E_DEPRECATED') ? define('E_DEPRECATED', 8192) : null;
+defined('E_USER_DEPRECATED') ? define('E_USER_DEPRECATED', 16384) : null;
+
 class gelfErrorHandler extends GELFMessage {
 	
 	
@@ -153,5 +156,11 @@ class gelfErrorHandler extends GELFMessage {
 		default:
 			return var_export($arg, true);
 		}
+	}
+}
+
+if (!function_exists('gethostname')) {
+	function gethostname() {
+		return php_uname('n');
 	}
 }
