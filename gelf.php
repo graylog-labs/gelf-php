@@ -6,11 +6,12 @@ class GELFMessage {
 
     private $graylogHostname;
     private $graylogPort;
+    private $compressFunction;
     private $maxChunkSize;
     
     private $data;
 
-    public function  __construct($graylogHostname, $graylogPort, $maxChunkSize = 'WAN')
+    public function  __construct($graylogHostname, $graylogPort, $maxChunkSize = 'WAN', $compression = 'zlib')
     {
         if (!is_numeric($graylogPort)) {
             throw new Exception("Port must be numeric");
@@ -18,6 +19,18 @@ class GELFMessage {
 
         $this->graylogHostname = $graylogHostname;
         $this->graylogPort = $graylogPort;
+
+        switch ($compression) {
+          case 'gzip':
+            $this->compressFunction = 'gzencode';
+            break;
+          case 'deflate':
+            $this->compressFunction = 'gzdeflate';
+            break;
+          default:
+            $this->compressFunction = 'gzcompress';
+        }
+
         switch ($maxChunkSize) {
             case 'WAN':
                 $this->maxChunkSize = 1420;
@@ -52,7 +65,7 @@ class GELFMessage {
         }
 
         // Convert data array to JSON and GZIP.
-        $gzippedJsonData = gzcompress(json_encode($this->data));
+        $gzippedJsonData = call_user_func($this->compressFunction, json_encode($this->data));
 	
         $sock = stream_socket_client('udp://' . gethostbyname($this->graylogHostname) .':' . $this->graylogPort);
 
