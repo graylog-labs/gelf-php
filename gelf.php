@@ -6,11 +6,12 @@ class GELFMessage {
 
     private $graylogHostname;
     private $graylogPort;
+    private $compressFunction;
     private $maxChunkSize;
     
     private $data;
 
-    public function  __construct($graylogHostname, $graylogPort, $maxChunkSize = 'WAN')
+    public function  __construct($graylogHostname, $graylogPort, $maxChunkSize = 'WAN', $compression = 'zlib')
     {
         if (!is_numeric($graylogPort)) {
             throw new Exception("Port must be numeric");
@@ -18,6 +19,18 @@ class GELFMessage {
 
         $this->graylogHostname = $graylogHostname;
         $this->graylogPort = $graylogPort;
+
+        switch ($compression) {
+          case 'gzip':
+            $this->compressFunction = 'gzencode';
+            break;
+          case 'deflate':
+            $this->compressFunction = 'gzdeflate';
+            break;
+          default:
+            $this->compressFunction = 'gzcompress';
+        }
+
         switch ($maxChunkSize) {
             case 'WAN':
                 $this->maxChunkSize = 1420;
@@ -52,14 +65,14 @@ class GELFMessage {
         }
 
         // Convert data array to JSON and GZIP.
-        $gzippedJsonData = gzcompress(json_encode($this->data));
+        $gzippedJsonData = call_user_func($this->compressFunction, json_encode($this->data));
 	
         $sock = stream_socket_client('udp://' . gethostbyname($this->graylogHostname) .':' . $this->graylogPort);
 
         // Maximum size is 8192 byte. Split to chunks. (GELFv2 supports chunking)
         if (strlen($gzippedJsonData) > $this->maxChunkSize) {
             // Too big for one datagram. Send in chunks.
-            $msgId = microtime(true) . rand(0,10000);
+            $msgId = pack("nnnn", mt_rand(0, 2147483647), mt_rand(0, 2147483647), mt_rand(0, 2147483647), mt_rand(0, 2147483647));
 
             $parts = str_split($gzippedJsonData, $this->maxChunkSize);
             $i = 0;
@@ -88,7 +101,7 @@ class GELFMessage {
             throw new Exception('Sequence number must be bigger than sequence count');
         }
 
-        return pack('CC', 30, 15) . hash('sha256', $msgId, true) . pack('nn', $seqNum, $seqCnt) . $data;
+        return pack('CC', 30, 15) . $msgId . pack('CC', $seqNum, $seqCnt) . $data;
     }
 
     // Setters / Getters.- Nothing to see here.
