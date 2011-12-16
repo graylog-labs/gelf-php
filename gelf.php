@@ -59,7 +59,7 @@ class GELFMessage {
         // Maximum size is 8192 byte. Split to chunks. (GELFv2 supports chunking)
         if (strlen($gzippedJsonData) > $this->maxChunkSize) {
             // Too big for one datagram. Send in chunks.
-            $msgId = microtime(true) . rand(0,10000);
+            $msgId = pack("nnnn", mt_rand(0, 2147483647), mt_rand(0, 2147483647), mt_rand(0, 2147483647), mt_rand(0, 2147483647));
 
             $parts = str_split($gzippedJsonData, $this->maxChunkSize);
             $i = 0;
@@ -88,7 +88,7 @@ class GELFMessage {
             throw new Exception('Sequence number must be bigger than sequence count');
         }
 
-        return pack('CC', 30, 15) . hash('sha256', $msgId, true) . pack('nn', $seqNum, $seqCnt) . $data;
+        return pack('CC', 30, 15) . $msgId . pack('CC', $seqNum, $seqCnt) . $data;
     }
 
     // Setters / Getters.- Nothing to see here.
