@@ -181,6 +181,7 @@ class GELFMessage {
 
     public function getAdditional($key)
     {
+        $key = '_' . str_replace (' ', '', $key);
         return isset($this->data[$key]) ? $this->data[$key] : null;
     }
     

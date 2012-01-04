@@ -1,15 +1,12 @@
 <?php
+require('gelfErrorHandler.php');
 
-require('gelf.php');
+define('APP_NAME', 'Hello graylog');
+define('GRAYLOG2_HOST', 'localhost');
+define('GRAYLOG2_PORT', 12201);
 
-$gelf = new GELFMessage('localhost', 12201);
 
-$gelf->setShortMessage('something is broken.');
-$gelf->setFullMessage("lol full message!");
-$gelf->setHost('somehost');
-$gelf->setLevel(2);
-$gelf->setFile('/var/www/example.php');
-$gelf->setLine(1337);
-$gelf->setAdditional("something", "foo");
-$gelf->setAdditional("something_else", "bar");
-$gelf->send();
+$gelf = new gelfErrorHandler(GRAYLOG2_HOST, GRAYLOG2_PORT);
+set_error_handler(array($gelf, 'handler'));
+
+trigger_error("Something went completely wrong :(", E_USER_ERROR);
