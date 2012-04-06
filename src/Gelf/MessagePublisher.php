@@ -2,7 +2,7 @@
 
 namespace Gelf;
 
-class MessagePublisher {
+class MessagePublisher implements IMessagePublisher {
     /**
      * @var integer
      */
