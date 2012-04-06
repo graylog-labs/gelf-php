@@ -1,5 +1,8 @@
 <?php
-class GELFMessagePublisher {
+
+namespace Gelf;
+
+class MessagePublisher {
     /**
      * @var integer
      */
@@ -38,7 +41,7 @@ class GELFMessagePublisher {
     /**
      * Creates a new publisher that sends errors to a Graylog2 server via UDP
      *
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      * @param string $hostname
      * @param integer $port
      * @param integer $chunkSize
@@ -46,15 +49,15 @@ class GELFMessagePublisher {
     public function __construct($hostname, $port = self::GRAYLOG2_DEFAULT_PORT, $chunkSize = self::CHUNK_SIZE_WAN) {
         // Check whether the parameters are set correctly
         if(!$hostname) {
-            throw new InvalidArgumentException('$hostname must be set');
+            throw new \InvalidArgumentException('$hostname must be set');
         }
 
         if(!is_numeric($port)) {
-            throw new InvalidArgumentException('$port must be an integer');
+            throw new \InvalidArgumentException('$port must be an integer');
         }
 
         if(!is_numeric($chunkSize)) {
-            throw new InvalidArgumentException('$chunkSize must be an integer');
+            throw new \InvalidArgumentException('$chunkSize must be an integer');
         }
 
         $this->hostname = $hostname;
@@ -63,16 +66,16 @@ class GELFMessagePublisher {
     }
 
     /**
-     * Publishes a GELFMessage, returns false if an error occured during write
+     * Publishes a Message, returns false if an error occured during write
      *
      * @throws UnexpectedValueException
      * @param unknown_type $message
      * @return boolean
      */
-    public function publish(GELFMessage $message) {
+    public function publish(Message $message) {
         // Check if required message parameters are set
         if(!$message->getShortMessage() || !$message->getHost()) {
-            throw new UnexpectedValueException(
+            throw new \UnexpectedValueException(
                 'Missing required data parameter: "version", "short_message" and "host" are required.'
             );
         }
@@ -127,10 +130,10 @@ class GELFMessagePublisher {
     }
 
     /**
-     * @param GELFMessage $message
+     * @param Message $message
      * @return string
      */
-    protected function getPreparedMessage(GELFMessage $message) {
+    protected function getPreparedMessage(Message $message) {
         return gzcompress(json_encode($message->toArray()));
     }
 
@@ -169,24 +172,24 @@ class GELFMessagePublisher {
      * @param string $data
      * @param integer $sequence
      * @param integer $sequenceSize
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      * @return string
      */
     protected function prependChunkInformation($messageId, $data, $sequence, $sequenceSize) {
         if(!is_string($data) || $data === '') {
-            throw new InvalidArgumentException('Data must be a string and not be empty.');
+            throw new \InvalidArgumentException('Data must be a string and not be empty.');
         }
 
         if(!is_integer($sequence) || !is_integer($sequenceSize)) {
-            throw new InvalidArgumentException('Sequence number and size must be integer.');
+            throw new \InvalidArgumentException('Sequence number and size must be integer.');
         }
 
         if($sequenceSize <= 0) {
-            throw new InvalidArgumentException('Sequence size must be greater than 0.');
+            throw new \InvalidArgumentException('Sequence size must be greater than 0.');
         }
 
         if($sequence > $sequenceSize) {
-            throw new InvalidArgumentException('Sequence size must be greater than sequence number.');
+            throw new \InvalidArgumentException('Sequence size must be greater than sequence number.');
         }
 
         return pack('CC', 30, 15) . substr(md5($messageId, true), 0, 8) . pack('CC', $sequence, $sequenceSize) . $data;
