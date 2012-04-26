@@ -1,9 +1,12 @@
 <?php
-class GELFMessage {
+
+namespace Gelf;
+
+class Message {
     /**
      * @var string
      */
-    private $version = null;
+    private $version = '1.0';
 
     /**
      * @var integer
@@ -52,7 +55,7 @@ class GELFMessage {
 
     /**
      * @param string $version
-     * @return GELFMessage
+     * @return Message
      */
     public function setVersion($version) {
         $this->version = $version;
@@ -68,7 +71,7 @@ class GELFMessage {
 
     /**
      * @param integer $timestamp
-     * @return GELFMessage
+     * @return Message
      */
     public function setTimestamp($timestamp) {
         $this->timestamp = $timestamp;
@@ -84,7 +87,7 @@ class GELFMessage {
 
     /**
      * @param string $shortMessage
-     * @return GELFMessage
+     * @return Message
      */
     public function setShortMessage($shortMessage) {
         $this->shortMessage = $shortMessage;
@@ -100,7 +103,7 @@ class GELFMessage {
 
     /**
      * @param string $fullMessage
-     * @return GELFMessage
+     * @return Message
      */
     public function setFullMessage($fullMessage) {
         $this->fullMessage = $fullMessage;
@@ -116,7 +119,7 @@ class GELFMessage {
 
     /**
      * @param string $facility
-     * @return GELFMessage
+     * @return Message
      */
     public function setFacility($facility) {
         $this->facility = $facility;
@@ -132,7 +135,7 @@ class GELFMessage {
 
     /**
      * @param string $host
-     * @return GELFMessage
+     * @return Message
      */
     public function setHost($host) {
         $this->host = $host;
@@ -148,7 +151,7 @@ class GELFMessage {
 
     /**
      * @param integer $level
-     * @return GELFMessage
+     * @return Message
      */
     public function setLevel($level) {
         $this->level = $level;
@@ -164,7 +167,7 @@ class GELFMessage {
 
     /**
      * @param string $file
-     * @return GELFMessage
+     * @return Message
      */
     public function setFile($file) {
         $this->file = $file;
@@ -180,7 +183,7 @@ class GELFMessage {
 
     /**
      * @param integer $line
-     * @return GELFMessage
+     * @return Message
      */
     public function setLine($line) {
         $this->line = $line;
@@ -197,7 +200,7 @@ class GELFMessage {
     /**
      * @param string $key
      * @param mixed $value
-     * @return GELFMessage
+     * @return Message
      */
     public function setAdditional($key, $value) {
         $this->data["_" . trim($key)] = $value;

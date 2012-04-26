@@ -1,9 +1,12 @@
 <?php
 
-require('GELFMessage.php');
-require('GELFMessagePublisher.php');
+set_include_path(get_include_path() . PATH_SEPARATOR . 'src');
+spl_autoload_register();
 
-$message = new GELFMessage();
+use Gelf\Message;
+use Gelf\MessagePublisher;
+
+$message = new Message();
 $message->setShortMessage('something is broken.');
 $message->setFullMessage("lol full message!");
 $message->setHost('somehost');
@@ -13,5 +16,5 @@ $message->setLine(1337);
 $message->setAdditional("something", "foo");
 $message->setAdditional("something_else", "bar");
 
-$publisher = new GELFMessagePublisher('172.16.22.30');
+$publisher = new MessagePublisher('172.16.22.30');
 $publisher->publish($message);
