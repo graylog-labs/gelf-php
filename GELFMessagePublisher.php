@@ -70,15 +70,16 @@ class GELFMessagePublisher {
     /**
      * Publishes a GELFMessage, returns false if an error occured during write
      *
+     * @param GELFMessage $message
+     *
      * @throws UnexpectedValueException
-     * @param unknown_type $message
      * @return boolean
      */
     public function publish(GELFMessage $message) {
         // Check if required message parameters are set
         if(!$message->getShortMessage() || !$message->getHost()) {
             throw new UnexpectedValueException(
-                'Missing required data parameter: "version", "short_message" and "host" are required.'
+                'Missing required data parameter: "short_message" and "host" are required.'
             );
         }
 
@@ -140,13 +141,24 @@ class GELFMessagePublisher {
     }
 
     /**
+     * @throws RuntimeException
      * @return resource
      */
     protected function getSocketConnection() {
         if (!$this->streamSocketClient) {
-            $this->streamSocketClient = stream_socket_client(sprintf('udp://%s:%d',
-                                                                     gethostbyname($this->hostname),
-                                                                     $this->port));
+            $this->streamSocketClient = stream_socket_client(
+                sprintf(
+                    'udp://%s:%d',
+                    gethostbyname($this->hostname),
+                    $this->port
+                ),
+                $errorNo,
+                $errorMsg
+            );
+
+            if(false === $this->streamSocketClient) {
+                throw new RuntimeException($errorMsg, $errorNo);
+            }
         }
         return $this->streamSocketClient;
     }

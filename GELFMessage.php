@@ -12,7 +12,7 @@ class GELFMessage {
     const INFO = 6;
     const DEBUG = 7;
     /**#@-*/
-    
+
     /**
      * @var string
      */
@@ -218,6 +218,8 @@ class GELFMessage {
     }
 
     /**
+     * @param $key
+     *
      * @return mixed
      */
     public function getAdditional($key) {
