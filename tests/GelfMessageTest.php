@@ -1,9 +1,5 @@
 <?php
 
-require __DIR__ . '/../GELFMessage.php';
-require __DIR__ . '/../GELFMessagePublisher.php';
-
-
 class GelfMessageTest extends PHPUnit_Framework_TestCase
 {
     public function testGelfMessage()
