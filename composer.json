@@ -13,7 +13,13 @@
         }
     ],
     "autoload": {
-        "classmap": [""]
+        "classmap": [""],
+        "files": [
+            "GELFMessage.php",
+            "GELFMessagePublisher.php"
+        ]
     },
-    "require": {}
+    "require-dev": {
+        "lapistano/proxy-object": "dev-master"
+    }
 }
