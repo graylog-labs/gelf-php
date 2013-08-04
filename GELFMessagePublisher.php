@@ -72,8 +72,8 @@ class GELFMessagePublisher {
      *
      * @param GELFMessage $message
      *
+     * @throws RuntimeException
      * @throws UnexpectedValueException
-     * @return boolean
      */
     public function publish(GELFMessage $message) {
         // Check if required message parameters are set
@@ -83,13 +83,9 @@ class GELFMessagePublisher {
             );
         }
 
-        // Set Graylog protocol version
         $message->setVersion(self::GRAYLOG2_PROTOCOL_VERSION);
-
-        // Encode the message as json string and compress it using gzip
         $preparedMessage = $this->getPreparedMessage($message);
 
-        // Open a udp connection to graylog server
         $socket = $this->getSocketConnection();
 
         // Several udp writes are required to publish the message
@@ -113,26 +109,29 @@ class GELFMessagePublisher {
 
                 if(false === $bytesWritten) {
                     // Abort due to write error
-                    return false;
+                    throw new RuntimeException(
+                        'Unable to write message (id: ' . $messageId . ') to socket.'
+                    );
                 }
             }
         } else {
             // A single write is enough to get the message published
             if(false === $this->writeMessageToSocket($socket, $preparedMessage)) {
                 // Abort due to write error
-                return false;
+                throw new RuntimeException(
+                    'Unable to write message (id: ' . $messageId . ') to socket.'
+                );
             }
         }
 
         // This increases stability a lot if messages are sent in a loop
         // A value of 20 means 0.02 ms
         usleep(20);
-
-        // Message successful sent
-        return true;
     }
 
     /**
+     * Provides an encoded message to be
+     *
      * @param GELFMessage $message
      * @return string
      */
@@ -146,7 +145,7 @@ class GELFMessagePublisher {
      */
     protected function getSocketConnection() {
         if (!$this->streamSocketClient) {
-            $this->streamSocketClient = stream_socket_client(
+            $this->streamSocketClient = @stream_socket_client(
                 sprintf(
                     'udp://%s:%d',
                     gethostbyname($this->hostname),
