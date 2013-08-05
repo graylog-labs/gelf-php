@@ -13,4 +13,18 @@
             <directory>tests/</directory>
         </testsuite>
     </testsuites>
+
+    <logging>
+        <log type="coverage-html" target="builds/coverage-html" title="Coverage Report of Gelf-PHP library"
+             charset="UTF-8" yui="true" highlight="true"/>
+    </logging>
+
+    <filter>
+        <blacklist>
+            <directory>./vendor/</directory>
+            <directory>./builds/</directory>
+            <directory>./tests/</directory>
+        </blacklist>
+    </filter>
+
 </phpunit>
