@@ -1,18 +1,11 @@
 <?php
 
-class GelfMessageTest extends PHPUnit_Framework_TestCase
+class GelfMessageTest extends GelfPhpTestCase
 {
     public function testGelfMessage()
     {
-        $message = new GELFMessage();
-        $message->setShortMessage('something is broken.');
-        $message->setFullMessage("lol full message!");
-        $message->setHost('somehost');
-        $message->setLevel(GELFMessage::CRITICAL);
-        $message->setFile('/var/www/example.php');
-        $message->setLine(1337);
-        $message->setAdditional("something", "foo");
-        $message->setAdditional("something_else", "bar");
+        $time = time();
+        $message = $this->getGelfMessage($time);
 
         $this->assertEquals(
             array(
@@ -27,13 +20,15 @@ class GelfMessageTest extends PHPUnit_Framework_TestCase
                 'line' => 1337,
                 '_something' => 'foo',
                 '_something_else' => 'bar',
+                'timestamp' => $time,
+                'facility' => 'someFacitlity',
             ),
             $message->toArray()
         );
     }
 
     public function testAdditionalField() {
-        $message = new GELFMessage();
+        $message = new GELFMessage(time());
         $message->setAdditional("something", "foo");
         $this->assertEquals("foo", $message->getAdditional("something"));
     }

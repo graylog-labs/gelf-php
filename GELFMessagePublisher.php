@@ -50,7 +50,7 @@ class GELFMessagePublisher {
      */
     public function __construct($hostname, $port = self::GRAYLOG2_DEFAULT_PORT, $chunkSize = self::CHUNK_SIZE_WAN) {
         // Check whether the parameters are set correctly
-        if(!$hostname) {
+        if(empty($hostname) || trim($hostname) == '') {
             throw new InvalidArgumentException('$hostname must be set');
         }
 
@@ -90,33 +90,31 @@ class GELFMessagePublisher {
 
         // Several udp writes are required to publish the message
         if($this->isMessageSizeGreaterChunkSize($preparedMessage)) {
-            // A unique id which consists of the microtime and a random value
-            $messageId = $this->getMessageId();
-
-            // Split the message into chunks
-            $messageChunks = $this->getMessageChunks($preparedMessage);
-            $messageChunksCount = count($messageChunks);
-
-            // Send chunks to graylog server
-            foreach(array_values($messageChunks) as $messageChunkIndex => $messageChunk) {
-                    $bytesWritten = $this->writeMessageChunkToSocket(
-                    $socket,
-                    $messageId,
-                    $messageChunk,
-                    $messageChunkIndex,
-                    $messageChunksCount
-                );
-
-                if(false === $bytesWritten) {
-                    // Abort due to write error
-                    throw new RuntimeException(
-                        'Unable to write message (id: ' . $messageId . ') to socket.'
-                    );
-                }
-            }
+            $chunkSize = $this->chunkSize;
         } else {
-            // A single write is enough to get the message published
-            if(false === $this->writeMessageToSocket($socket, $preparedMessage)) {
+            $chunkSize = strlen($preparedMessage) / 2;
+        }
+
+        // A unique id which consists of the microtime and a random value
+        $messageId = $this->getMessageId();
+
+        // Split the message into chunks
+        $messageChunks = $this->getMessageChunks($preparedMessage, $chunkSize);
+        $messageChunksCount = count($messageChunks);
+
+        // Send chunks to graylog server
+        foreach(array_values($messageChunks) as $messageChunkIndex => $messageChunk) {
+            $bytesWritten = $this->writeMessageChunkToSocket(
+                $socket,
+                $messageId,
+                $messageChunk,
+                $messageChunkIndex,
+                $messageChunksCount
+            );
+
+            // fwrite does only return false in case of invalid arguments are passed to it (like an empty message).
+            // all other case make it return zero (integer).
+            if(false === $bytesWritten || 0 === $bytesWritten) {
                 // Abort due to write error
                 throw new RuntimeException(
                     'Unable to write message (id: ' . $messageId . ') to socket.'
@@ -179,10 +177,12 @@ class GELFMessagePublisher {
 
     /**
      * @param string $preparedMessage
+     * @param integer $chunkSize
+     *
      * @return array
      */
-    protected function getMessageChunks($preparedMessage) {
-        return str_split($preparedMessage, $this->chunkSize);
+    protected function getMessageChunks($preparedMessage, $chunkSize) {
+        return str_split($preparedMessage, $chunkSize);
     }
 
     /**
@@ -214,6 +214,13 @@ class GELFMessagePublisher {
     }
 
     /**
+     * Send the message through the socket.
+     *
+     * fwrite does only return false in case of invalid arguments are passed to it (like an empty message).
+     * all other case make it return zero (integer) when message could not be send.
+     * Unfortunately this will only be done every second write attempt.
+     * So the message has at least to be split in half.
+     *
      * @param resource $socket
      * @param float $messageId
      * @param string $messageChunk
@@ -222,18 +229,9 @@ class GELFMessagePublisher {
      * @return integer|boolean
      */
     protected function writeMessageChunkToSocket($socket, $messageId, $messageChunk, $messageChunkIndex, $messageChunksCount) {
-        return fwrite(
+        return @fwrite(
             $socket,
             $this->prependChunkInformation($messageId, $messageChunk, $messageChunkIndex, $messageChunksCount)
         );
-    }
-
-    /**
-     * @param resource $socket
-     * @param string $preparedMessage
-     * @return integer|boolean
-     */
-    protected function writeMessageToSocket($socket, $preparedMessage) {
-        return fwrite($socket, $preparedMessage);
     }
 }

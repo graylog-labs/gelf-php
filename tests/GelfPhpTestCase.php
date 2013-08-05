@@ -1,14 +1,6 @@
 <?php
 use lapistano\ProxyObject\ProxyBuilder;
 
-/**
- * Created by JetBrains PhpStorm.
- * User: lapistano
- * Date: 8/3/13
- * Time: 11:26 AM
- * To change this template use File | Settings | File Templates.
- */
-
 class GelfPhpTestCase extends PHPUnit_Framework_TestCase
 {
     /**
@@ -26,9 +18,11 @@ class GelfPhpTestCase extends PHPUnit_Framework_TestCase
     /**
      * Provides a default message object.
      *
+     * @param integer $timeStamp
+     *
      * @return GELFMessage
      */
-    protected function getGelfMessage()
+    protected function getGelfMessage($timeStamp)
     {
         $message = new GELFMessage();
         $message->setShortMessage('something is broken.');
@@ -37,6 +31,8 @@ class GelfPhpTestCase extends PHPUnit_Framework_TestCase
         $message->setLevel(GELFMessage::CRITICAL);
         $message->setFile('/var/www/example.php');
         $message->setLine(1337);
+        $message->setTimestamp($timeStamp);
+        $message->setFacility('someFacitlity');
         $message->setAdditional("something", "foo");
         $message->setAdditional("something_else", "bar");
 
