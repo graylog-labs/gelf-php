@@ -1,9 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit colors="true">
+<phpunit
+        colors="true"
+        strict="true"
+        bootstrap="bootstrap.php"
+        convertErrorsToExceptions="true"
+        convertNoticesToExceptions="true"
+        convertWarningsToExceptions="true"
+>
     <testsuites>
         <testsuite name="gelf-php Test Suite">
             <directory>tests/</directory>
         </testsuite>
     </testsuites>
+
+    <logging>
+        <log type="coverage-html" target="builds/coverage-html" title="Coverage Report of Gelf-PHP library"
+             charset="UTF-8" yui="true" highlight="true"/>
+    </logging>
+
+    <filter>
+        <blacklist>
+            <directory>./vendor/</directory>
+            <directory>./builds/</directory>
+            <directory>./tests/</directory>
+        </blacklist>
+    </filter>
+
 </phpunit>
